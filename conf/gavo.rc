@@ -1,0 +1,13 @@
+[general]
+rootDir: /var/gavo
+maintainerAddress: pierre.lesidaner@obspm.fr
+[web]
+bindAddress:
+serverPort: 80
+#serverURL: http://145.238.197.199:81
+serverURL: http://127.0.0.1:80
+sitename: portablelp
+corsOriginPat: http.*
+logFormat: combined
+[ivoa]
+authority: vopdc.obspm 

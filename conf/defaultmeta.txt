@@ -1,0 +1,20 @@
+publisher: Paris Astronomical Data Centre
+publisherID: ivo://vopdc.obspm
+contact.name: PADC support team
+contact.address: 77 av. Denfert Rochereau, 75014 Paris, FRANCE
+contact.email: vo.paris@obspm.fr 
+contact.telephone: 0033140512082
+creator.name: PADC
+creator.logo: http://voparis-srv-paris.obspm.fr/logos/PADC_small.png 
+authority.creationDate: 2012-01-09T12:53:33
+authority.title: Paris Astronomical Data Centre Authority
+authority.shortName: PADC
+authority.description: The Paris Astronomical Data Centre project aims at providing VO access to its databases ressources, at participating to international standards developments, at implementing VO compliant simulation codes, data visualization and analysis software. This Naming Authority is used to identify the resources provided by Paris Astronomical Data Centre at Observatoire de Paris, Paris, FRANCE
+authority.referenceURL: vo-web.obspm.fr
+authority.referenceURL: http://padc.obspm.fr
+authority.managingOrg: ivo://vopdc
+organization.title: Observatoire de Paris
+organization.description: Founded in 1667, the Observatoire de Paris is the largest national research center for astronomy.
+organization.referenceURL: http://www.obspm.fr
+site.description: The Paris Astronomical Data Centre project aims at providing VO access to its databases ressources, at participating to international standards developments, at implementing VO compliant simulation codes, data visualization and analysis software.
+
