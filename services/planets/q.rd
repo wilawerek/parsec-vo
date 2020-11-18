@@ -1,5 +1,7 @@
 <resource schema="planets">
   <meta name="title">Characteristics of Planets (demo)</meta>
+  <meta name="shortname">Planets</meta>
+  <meta name="shortName">Planets</meta>
   <meta name="description" format="plain">
 Demonstration service of EPN-TAP v1: main characteristics of planets. Data are included in the table, therefore most relevant parameters are non-standard in EPN-TAP. Data are retrieved from Archinal et al 2009 (IAU report, 2011CeMDA.109..101A) [radii] and Cox et al 2000 (Allen's astrophysical quantities, 2000asqu.book.....C) [masses, heliocentric distances, and rotation periods]. </meta>
   <meta name="creationDate">2015-08-16T09:42:00Z</meta>
@@ -126,7 +128,7 @@ Demonstration service of EPN-TAP v1: main characteristics of planets. Data are i
         <make table="epn_core">
             <rowmaker idmaps="*">
                 <var key="dataproduct_type">"ci"</var>
-                <var key="spatial_frame_type">"celestial"</var>
+                <var key="spatial_frame_type">"none"</var>
 
                 <var key="target_name" source="target_name" />
                 <var key="granule_uid" source="target_name" />
@@ -145,8 +147,14 @@ Demonstration service of EPN-TAP v1: main characteristics of planets. Data are i
                 <var key="service_title">"planets" </var>
                 <var key="bib_reference">"2011CeMDA.109..101A#2000asqu.book.....C"</var>
                 <var key="publisher">"LESIA" </var>
-                <var key="target_class">"planet"</var>
+                                <var key="target_class">"planet"</var>
 
+                                <!-- the id for our datalink services is artificial: it's
+                                just the concatenation of the object class and the object name
+                                -->
+                                <var key="ds_id">@target_class+"/"+@target_name</var>
+                                <var key="datalink_url">("\getConfig{web}{serverURL}/\rdId/epdl/dlmeta"
+                                        +"?ID="+urllib.parse.quote(@ds_id))</var> 
 
                 <apply procDef="//epntap2#populate-2_0" name="fillepn">
                     <bind name="granule_gid">@granule_gid</bind>
@@ -154,12 +162,18 @@ Demonstration service of EPN-TAP v1: main characteristics of planets. Data are i
                     <bind name="obs_id">@obs_id</bind>
                     <bind name="target_class">@target_class</bind>
                     <bind name="time_scale">"UTC"</bind>
+
                     <bind name="target_name">@target_name</bind>
                     <bind name="instrument_host_name">""</bind>
                     <bind name="instrument_name">""</bind>
+
+
                     <bind key="processing_level">5</bind>
+
                     <bind name="dataproduct_type">@dataproduct_type</bind>
                     <bind name="measurement_type">"phys.mass#phys.size.radius"</bind>
+
+
                     <bind name="service_title">@service_title</bind>
                     <bind name="creation_date">@creation_date</bind>
                     <bind name="modification_date">@modification_date</bind>
@@ -171,8 +185,83 @@ Demonstration service of EPN-TAP v1: main characteristics of planets. Data are i
         </make>
     </data>
 
-    <data id="collection" auto="false">
-        <make table="epn_core"/>
-        <publish/>
+    <service id="epdl" allowed="dlget,dlmeta">
+        <datalinkCore>
+            <metaMaker>
+                <code>
+                    yield MS(InputKey, name="epoch", 
+                        type="double precision",
+                        unit="d", ucd="meta.epoch",
+                        description="Time the ephemeris is to be computed for, JD",
+                        multiplicity="forced-single",
+                        values=MS(Values,
+                            min=2400000,
+                            max=3000000))
+                </code>
+            </metaMaker>
+
+            <metaMaker>
+                <code>
+                    with base.getTableConn() as conn:
+                         url = list(conn.query("SELECT thumbnail_url from \schema.epn_core where"
+                                " target_class=%(targetClass)s and target_name=%(targetName)s", {
+                                "targetClass": descriptor.targetClass,
+                                "targetName": descriptor.targetName}))[0][0]
+                    yield LinkDef(descriptor.pubDID,
+                        url,
+                        description="A preview of the planet",
+                        semantics="#preview",
+                        contentType="image/jpeg")
+                </code>
+            </metaMaker>
+
+            <descriptorGenerator>
+            <setup>
+                <code>
+                    class PlanetDescriptor(object):
+                        def __init__(self, pubDID):
+                            self.pubDID = pubDID
+                            self.targetClass, self.targetName = self.pubDID.split("/", 1)
+                            self.computeEphemerisId()
+
+                        def computeEphemerisId(self):
+                                shortClass = {
+                                        'planet': 'p',
+                                        'satellite': 's',
+                                }[self.targetClass]
+                                self.ephId = "{}:{}".format(
+                                        shortClass, self.targetName)
+                        description="computed ephemeris of the planet",
+                </code>
+            </setup>
+                <code>
+                    return PlanetDescriptor(pubDID)
+                </code>
+            </descriptorGenerator>
+
+            <dataFunction>
+                <setup>
+                    <par name="upstream_service_url"
+                        >"http://vo.imcce.fr/webservices/miriade/ephemcc_query.php?-from=vespa&amp;"</par>
+                    <code>
+            
+	    from urllib.parse import urlencode
+            from gavo.svcs import WebRedirect
+	    import urllib.parse
+                    </code>
+                </setup>
+                <code>
+                    parameters = {
+                        "-name": descriptor.ephId,
+                        "-ep": args["epoch"],
+                    }
+                    raise WebRedirect(upstream_service_url+urlencode(parameters))
+                </code>
+            </dataFunction>
+        </datalinkCore>
+    </service>
+       <data id="collection" auto="false">
+       <make table="epn_core"/>
+       <publish/>
     </data>
 </resource>
