@@ -1,5 +1,6 @@
 # les choses à configurer pour son instance gavo.rc car il y a l'ip du serveur ou son nom dns
 # le nom du dépot correspnd au nom du projet/nom du serveur, ici /vespa/voparis-tap-planeto/
+# test
 
 #Configuration du docker mydachs une fois lancé
 apt-get update
