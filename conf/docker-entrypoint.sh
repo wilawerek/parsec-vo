@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # script executé au démarrage du docker
-
+service ssh restart
 service postgresql restart
 
 for rep in $(find /var/gavo/inputs/[0-9a-zA-Z]* -maxdepth 0 -type d | cut -f5 -d'/')
