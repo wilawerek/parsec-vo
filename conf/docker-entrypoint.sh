@@ -4,13 +4,13 @@
 
 service postgresql restart
 
-for rep in $(find /var/gavo/inputs/[0-9a-zA-Z]* -maxdepth 0 -type d)
+for rep in $(find /var/gavo/inputs/[0-9a-zA-Z]* -maxdepth 0 -type d | cut -f5 -d'/')
 do
-  su - dachsroot dachs imp /var/gavo/inputs/${rep}/q.rd
-  su - dachsroot dachs pub //services
-  su - dachsroot dachs pub //tap
-  su - dachsroot dachs pub /var/gavo/inputs/${rep}/q.rd
+  dachs imp ${rep}/q.rd
+  dachs pub //services
+  dachs pub //tap
+  dachs pub ${rep}/q.rd
 done
-gavo serve restart
+dachs serve restart
 
 service apache2 restart
