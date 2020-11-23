@@ -6,10 +6,10 @@ service postgresql restart
 
 for rep in $(find /var/gavo/inputs/[0-9a-zA-Z]* -maxdepth 0 -type d | cut -f5 -d'/')
 do
-  dachs imp ${rep}/q.rd
-  dachs pub //services
-  dachs pub //tap
-  dachs pub ${rep}/q.rd
+  su - dachsroot bash -c "dachs imp ${rep}/q.rd"
+  su - dachsroot bash -c "dachs pub //services"
+  su - dachsroot bash -c "dachs pub //tap"
+  su - dachsroot bash -c "dachs pub ${rep}/q.rd"
 done
 dachs serve restart
 
