@@ -14,7 +14,6 @@ done
 dachs serve restart
 
 service apache2 restart
-service ssh restart
 
 #block a tester pour l'accès aux depots privé
 #fonctionne avec la clé privé ssh (secrets dans docker compose)
