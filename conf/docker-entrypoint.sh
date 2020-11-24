@@ -18,9 +18,10 @@ service apache2 restart
 #block a tester pour l'accès aux depots privé
 #fonctionne avec la clé privé ssh (secrets dans docker compose)
 eval "$(ssh-agent -s)"
-if [ ! -d "/root/.ssh/" ]; then
+if ([ ! -f "/home/dachsroot/.ssh/know_hosts" ] && [ -f "/run/secrets/id_rsa" ]); then
     ssh-add -k /run/secrets/id_rsa
-    mkdir /root/.ssh
-    ssh-keyscan github.com > /root/.ssh/known_hosts
-    # now execute command which require authentication via ssh (example, git clone from a private repo)
+    ssh-keyscan github.com >> /home/dachsroot/.ssh/known_hosts
+    ssh-keyscan gitlab.obpsm.fr >> /home/dachsroot/.ssh/known_hosts
+    chown dachsroot:gavo /home/dachsroot/.ssh/known_hosts
+    chmod 600 /home/dachsroot/.ssh/known_hosts
 fi
