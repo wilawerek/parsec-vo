@@ -21,7 +21,7 @@ eval "$(ssh-agent -s)"
 if ([ ! -f "/home/dachsroot/.ssh/know_hosts" ] && [ -f "/run/secrets/id_rsa" ]); then
     ssh-add -k /run/secrets/id_rsa
     ssh-keyscan github.com >> /home/dachsroot/.ssh/known_hosts
-    ssh-keyscan gitlab.obpsm.fr >> /home/dachsroot/.ssh/known_hosts
+    ssh-keyscan gitlab.obspm.fr >> /home/dachsroot/.ssh/known_hosts
     chown dachsroot:gavo /home/dachsroot/.ssh/known_hosts
     chmod 600 /home/dachsroot/.ssh/known_hosts
 fi
