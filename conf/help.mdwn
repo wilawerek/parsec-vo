@@ -1,6 +1,9 @@
 #source
 https://docs.docker.com/compose/compose-file/
 
+# packet docker necessaire sur le serveur (deb 10)
+sudo apt install docker docker.io wmdocker
+
 # commande nettoyage pour test
 docker stop dachs-voparis && docker rm dachs-voparis && docker image rm dachs-voparis:latest && docker system prune
 
