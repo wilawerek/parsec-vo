@@ -1,0 +1,29 @@
+version: "3.7"
+services:
+
+  dachs:
+    container_name: dachs-voparis
+    image: dachs-voparis
+    tty: true
+    expose:
+      - "80"
+      - "8080"
+      - "22"
+    ports:
+      - "2222:22"
+      - "80:80"
+      - "8080:8080"
+    build:
+      context: .
+      dockerfile: dachs-dockerfile
+      args:
+        - "VERSION=${VERSION}"
+        - "SERVER=${SERVER}"
+        - "GITURL=${GITURL}"
+        - "GIT=${GIT}"
+    secrets:
+      - source: id_rsa
+
+secrets:
+  id_rsa:
+    file: id_rsa-phamy.prive

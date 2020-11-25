@@ -1,0 +1,108 @@
+#source
+https://docs.docker.com/compose/compose-file/
+
+# commande nettoyage pour test
+docker stop dachs-voparis && docker rm dachs-voparis && docker image rm dachs-voparis:latest && docker system prune
+
+#fonctionnement du docker
+dans l'ordre
+.env => définis les variables utilisé dans docker-compose.yml
+docker-compose.yml => définis les dockers et les params de build des bulles
+dachs-dockerfile => définis les lignes de commandes pour build dachs
+docker-entrypoint.sh => script executé au démarrage du docker
+secrets / id_rsa-phamy.prive ==> Ne JAMAIS mettre dans un git !!!
+
+docker-compose up -d ==> lance la séquence, --build pour forcer la maj
+
+docker image list => list les images
+docker ps -a => list les dockers
+docker image rm rep_dachs pour supprimer l'image docker
+docker rm dachs pour supprimer le docker
+
+# link de docker
+si besoin de séparer awstat
+Ne pas utiliser link "depreciate"
+
+version: "3"
+services:
+
+  proxy:
+    build: ./proxy
+    networks:
+      - frontend
+  app:
+    build: ./app
+    networks:
+      - frontend
+      - backend
+  db:
+    image: postgres
+    networks:
+      - backend
+
+networks:
+  frontend:
+    # Use a custom driver
+    driver: custom-driver-1
+  backend:
+    # Use a custom driver which takes special options
+    driver: custom-driver-2
+    driver_opts:
+      foo: "1"
+      bar: "2"
+
+# volume data
+ajouter dans le yaml docker-compose
+version: "3"
+services:
+
+  db:
+    image: postgres:9.4
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    networks:
+      - backend
+
+networks:
+  frontend:
+
+volumes:
+  db-data:
+
+# passage de variable dans un docker-compose
+Beside your docker-compose.yml file, create a new text file called .env. In it, add the following:
+cat .env
+CLIENT_ID=yourclientid
+CLIENT_SECRET=yourclientsecret
+
+Now, open your docker-compose.yml file again, and replace yourclientid with ${CLIENT_ID} and yourclientsecret with ${CLIENT_SECRET}. That is:
+
+services:
+  app:
+    . . . #snipped
+    environment:
+	  - GITHUB_CLIENT_ID=${CLIENT_ID}
+	  - GITHUB_CLIENT_SECRET=${CLIENT_SECRET}
+
+# comment passer des mots des passes
+version: "3.7"
+services:
+
+  dachs:
+    container_name: dachs-voparis
+    image: dachs-voparis
+    build:
+      dockerfile: dachs-dockerfile
+    secrets:
+      - id_rsa
+
+secrets:
+  id_rsa:
+    file: id_rsa-phamy.prive
+
+pour chaque docker dont le secrets id_rsa sera défini, le fichier sera copie dans le docker dans /run/secrets/id_rsa
+root@c459f2b03173:~# ls -tralh /run/secrets/      
+total 16K
+-rw-r--r-- 1 dachsroot gavo  739 Nov 24 08:43 id_rsa
+--> sans docker swarm les droits sont ceux de l'hote !
+

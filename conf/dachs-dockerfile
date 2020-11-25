@@ -1,0 +1,111 @@
+ARG VERSION
+FROM debian:$VERSION
+
+ARG SERVER
+ARG GITURL
+ARG GIT
+ARG HOMEPATH=/home/dachsroot
+
+
+###
+#install de la clé + depot Dachs
+# ajout de postgres en amont sinon l'install de dachs plante
+###
+
+RUN apt-get -y update
+RUN apt-get -y upgrade
+RUN apt-get install -y curl apt-utils
+
+RUN curl -o /etc/apt/trusted.gpg.d/gavo-archive.key.asc https://docs.g-vo.org/archive-key.asc
+RUN echo "deb http://vo.ari.uni-heidelberg.de/debian release main" > /etc/apt/sources.list.d/dachs.list
+
+
+###
+# Configuration du serveur
+###
+
+RUN apt-get -y update
+RUN apt-get -y upgrade
+RUN apt-get install -y postgresql postgresql-pgsphere postgresql-q3c
+RUN service postgresql restart && apt-get install -y git gavodachs2-server wget awstats geoip-database libgeo-ipfree-perl
+RUN apt-get install -y git openssh-server openssh-client apache2 w3m net-tools vim
+
+
+###
+# Ajout des clés ssh
+# port utilisé par defaut 2222
+###
+
+RUN mkdir -p /root/.ssh
+RUN echo "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQCx1IuqhW3UJmKWc6ODuhXu58CSdHGavVJaTUILUsR3ig359wRQ7GEpwXdk5dcTNOS16xVVx8KP7SEqsOOGRQ14jy2z3rJLZ0tRKzceCk1nXrFgipJ8qU0sFDc+dvXgJ94XvHlZzgQDT/iLeIZ6lhDEHn6O+EdfNf1g32LqIFXEe4fqRsKsM4ssYcHigdh3cdVDU350ACNxRrVEzCRE9lcGcfouwjSNMeWZO5SnCIzl7sOGJroYmL/c17P1YPIE1HzW3FjNI98FxJR2K/TmcUWJYDc7wDalN6HXyquoFsew7Sn/BZH0aprdaTLO1F820MTUIzcF/oKvhMd/Ihz355srm//a4PGQE7RDPdvPSjOr9KSiM/PU0GiARARex1AYl/a4CY5HnKeIs/sJfOADFJTpDcF7TSqKYq51JN1itWNmVMv8zZ/rfHMiEHKiDxLXZsflmdKPynHLI/Wk+uQqLNyORQ5MWJwKRGOp5haoCKxUtHPU68woVO1uk4FawXI0yLp84iXO7RJrr5MMas+Cjzv/azWA/K1WXOjiiWIqAoOHAYKWS2embavVHgIpbK/0wn8q5BF18QBOlqlpkBICOLTXpBLB+tAjmw998nYMF5PKI8synjzHGytd79OtrphO+ADWrCQuWDSxqkzbisJUMn3m1a4Z5CaaX1kjIL0P4RlvLw== phamy" >> /root/.ssh/authorized_keys
+RUN chmod 700 /root/.ssh
+RUN chmod 600 /root/.ssh/authorized_keys
+
+RUN mkdir -p /home/dachsroot/.ssh
+RUN echo "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQCx1IuqhW3UJmKWc6ODuhXu58CSdHGavVJaTUILUsR3ig359wRQ7GEpwXdk5dcTNOS16xVVx8KP7SEqsOOGRQ14jy2z3rJLZ0tRKzceCk1nXrFgipJ8qU0sFDc+dvXgJ94XvHlZzgQDT/iLeIZ6lhDEHn6O+EdfNf1g32LqIFXEe4fqRsKsM4ssYcHigdh3cdVDU350ACNxRrVEzCRE9lcGcfouwjSNMeWZO5SnCIzl7sOGJroYmL/c17P1YPIE1HzW3FjNI98FxJR2K/TmcUWJYDc7wDalN6HXyquoFsew7Sn/BZH0aprdaTLO1F820MTUIzcF/oKvhMd/Ihz355srm//a4PGQE7RDPdvPSjOr9KSiM/PU0GiARARex1AYl/a4CY5HnKeIs/sJfOADFJTpDcF7TSqKYq51JN1itWNmVMv8zZ/rfHMiEHKiDxLXZsflmdKPynHLI/Wk+uQqLNyORQ5MWJwKRGOp5haoCKxUtHPU68woVO1uk4FawXI0yLp84iXO7RJrr5MMas+Cjzv/azWA/K1WXOjiiWIqAoOHAYKWS2embavVHgIpbK/0wn8q5BF18QBOlqlpkBICOLTXpBLB+tAjmw998nYMF5PKI8synjzHGytd79OtrphO+ADWrCQuWDSxqkzbisJUMn3m1a4Z5CaaX1kjIL0P4RlvLw== phamy" >> /home/dachsroot/.ssh/authorized_keys
+RUN chmod 700 /home/dachsroot/.ssh
+RUN chmod 600 /home/dachsroot/.ssh/authorized_keys
+RUN chown dachsroot:gavo -R /home/dachsroot/.ssh
+
+
+###
+# Installation des sources
+###
+
+RUN mkdir $PATH$SERVER -p
+RUN git clone $GITURL/$GIT.git $HOMEPATH/$SERVER/$GIT
+
+#on déplace les fichiers
+RUN cp $HOMEPATH/$SERVER/$GIT/conf/000-default.conf /etc/apache2/sites-enabled/000-default.conf
+RUN cp $HOMEPATH/$SERVER/$GIT/conf/ports.conf /etc/apache2/ports.conf
+RUN cp $HOMEPATH/$SERVER/$GIT/conf/awstats.dachs.conf /etc/awstats/awstats.dachs.conf
+RUN cp $HOMEPATH/$SERVER/$GIT/conf/gavo.rc /etc/gavo.rc
+RUN cp $HOMEPATH/$SERVER/$GIT/conf/docker-entrypoint.sh /usr/bin/docker-entrypoint.sh
+RUN chmod +x /usr/bin/docker-entrypoint.sh
+RUN cp $HOMEPATH/$SERVER/$GIT/conf/defaultmeta.txt /var/gavo/etc/defaultmeta.txt
+RUN mkdir /var/gavo/web/nv_static/img/ -p
+RUN cp $HOMEPATH/$SERVER/$GIT/conf/logo* /var/gavo/web/nv_static/img/
+RUN cp -r $HOMEPATH/$SERVER/$GIT/services/* /var/gavo/inputs/
+
+
+###
+#configuration de dachs
+###
+
+RUN chown dachsroot:gavo /var/gavo/etc/defaultmeta.txt
+RUN chown dachsroot:gavo /var/gavo/web/nv_static/img/logo*
+RUN chown -R dachsroot:gavo /var/gavo/inputs/*
+
+
+###
+#configuration d'apache
+###
+
+RUN a2enmod cgi
+
+
+###
+# maj auto des donnnées awstats par cron
+###
+
+RUN echo "#!/bin/bash" > /etc/cron.daily/awstats
+RUN echo "/usr/bin/perl /usr/lib/cgi-bin/awstats.pl -config=dachs -update" >> /etc/cron.daily/awstats
+RUN chgrp 755 /etc/cron.daily/awstats
+
+
+###
+# Script de démarrage des servcices
+###
+
+RUN echo "cd $HOMEPATH/$SERVER/$GIT/" >> /usr/bin/docker-entrypoint.sh
+RUN echo "git pull" >> /usr/bin/docker-entrypoint.sh
+# ajout au script pour maintenir docker up
+#RUN echo "tail -f /dev/null" >> /usr/bin/docker-entrypoint.sh
+
+
+ENTRYPOINT /usr/bin/docker-entrypoint.sh && tail -f /dev/null
+
+#ajout de clé ssh notamment pour les depots git--> clé privé danger
+#vérifier les sub
+#permettre l'acces ssh au moins au docker (hyperviseur aussi ?)
+#faire un script maj
