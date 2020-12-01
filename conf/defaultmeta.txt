@@ -10,7 +10,6 @@ authority.creationDate: 2012-01-09T12:53:33
 authority.title: Paris Astronomical Data Centre Authority
 authority.shortName: PADC
 authority.description: The Paris Astronomical Data Centre project aims at providing VO access to its databases ressources, at participating to international standards developments, at implementing VO compliant simulation codes, data visualization and analysis software. This Naming Authority is used to identify the resources provided by Paris Astronomical Data Centre at Observatoire de Paris, Paris, FRANCE
-authority.referenceURL: vo-web.obspm.fr
 authority.referenceURL: http://padc.obspm.fr
 authority.managingOrg: ivo://vopdc
 organization.title: Observatoire de Paris
