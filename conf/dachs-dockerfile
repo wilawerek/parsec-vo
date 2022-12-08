@@ -16,8 +16,8 @@ RUN apt-get -y update
 RUN apt-get -y upgrade
 RUN apt-get install -y curl apt-utils
 
-RUN curl -o /etc/apt/trusted.gpg.d/gavo-archive.key.asc https://docs.g-vo.org/archive-key.asc
-RUN echo "deb http://vo.ari.uni-heidelberg.de/debian release main" > /etc/apt/sources.list.d/dachs.list
+#RUN curl -o /etc/apt/trusted.gpg.d/gavo-archive.key.asc https://docs.g-vo.org/archive-key.asc
+#RUN echo "deb http://vo.ari.uni-heidelberg.de/debian release main" > /etc/apt/sources.list.d/dachs.list
 
 
 ###
@@ -26,9 +26,12 @@ RUN echo "deb http://vo.ari.uni-heidelberg.de/debian release main" > /etc/apt/so
 
 RUN apt-get -y update
 RUN apt-get -y upgrade
-RUN apt-get install -y postgresql postgresql-pgsphere postgresql-q3c
-RUN service postgresql restart && apt-get install -y git gavodachs2-server wget awstats geoip-database libgeo-ipfree-perl
-RUN apt-get install -y git openssh-server openssh-client apache2 w3m net-tools vim
+RUN apt-get install -y postgresql-13 postgresql-13-q3c postgresql-13-pgsphere 
+#RUN service postgresql restart
+RUN apt-get install -y git wget awstats net-tools vim
+#RUN apt-get install -y gavodachs2-server
+RUN service postgresql restart && apt-get install -y gavodachs2-server
+RUN apt-get install -y openssh-server openssh-client apache2 w3m 
 
 
 ###
